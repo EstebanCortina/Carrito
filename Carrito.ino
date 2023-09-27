@@ -7,6 +7,12 @@
 
 #define btnModoLinea 4
 #define btnModoAutomatico 3
+
+#define sensorDerecho A1
+#define sensorCentroDerecha A2
+#define sensorCentroIzquierda A3
+#define sensorIzquierdo A4
+
 bool lineMode = false;
 
 ControlCarrito carrito(
@@ -19,32 +25,25 @@ ControlCarrito carrito(
 void setup() {
   Serial.begin(9600);
   carrito.init();
-  carrito.sensoresInit(A1, A2, A3, A4);
+  carrito.sensoresInit(
+    sensorDerecho,
+    sensorCentroDerecha,
+    sensorCentroIzquierda,
+    sensorIzquierdo);
+
   carrito.setMaxValue(900);
   pinMode(btnModoAutomatico, INPUT);
-  pinMode(btnModoAutomatico, INPUT);  
+  pinMode(btnModoLinea, INPUT);
 }
 
 void loop() {
-
-  /*
+  //Quitar el comentario cuando tenga un potenciometro de nuevo. Perdi el de esli jaja
   
-  if (estadoDerecha) {
-    Serial.println("Derecha");
-    carrito.girarDerecha(velocidad);
-  } else if (estadoAdelante) {
-    Serial.println("Adelante");
-    carrito.adelante(velocidad);
-  } else if (estadoIzquierda) {
-    Serial.println("Izquierda");
-    carrito.girarIzquierda(velocidad);
-  } else {
-    carrito.stop();
-  }
-*/
+  //int velocidad = carrito.obtenerVelocidad();
+  int velocidad = 180;  
   if (isLineMode()) {
     delay(100);
-    doLineMode();
+    doLineMode(velocidad);
   } else {
     delay(100);
     Serial.println("Modo Automatico");
@@ -61,22 +60,22 @@ bool isLineMode() {
     lineMode = true;
   } else if (estadoAutomatico) {
     lineMode = false;
-  }  
+  }
   return lineMode;
 }
 
-void doLineMode(){
+void doLineMode(int velocidad) {
   Serial.println("Modo Linea");
-    Serial.println(carrito.convertToDigital(analogRead(carrito.D4)));
-    int izquierda = carrito.convertToDigital(analogRead(carrito.D4));
-    //Quitara el comentario cuando tenga un potenciometro de nuevo. Perdi el de esli jaja
-    //int velocidad = carrito.obtenerVelocidad();
-    int velocidad = 180;
-    Serial.println(velocidad);
-    if(izquierda){
-      carrito.girarIzquierda(velocidad);
-    }else{
-      //Cambiar despues stop por adelante      
-      carrito.stop();
-    }
+  int izquierda = carrito.convertToDigital(analogRead(carrito.D4));
+  int derecha = carrito.convertToDigital(analogRead(carrito.D1));
+  Serial.println(izquierda);
+
+  if (izquierda) {
+    carrito.girarDerecha(velocidad);
+  } else if(derecha) {
+    carrito.girarIzquierda(velocidad);    
+  }else{
+    //Cambiar despues stop por adelante
+    carrito.stop();
+  }
 }
