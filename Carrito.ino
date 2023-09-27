@@ -5,10 +5,9 @@
 #define llantaIzquierdAAtras 5
 #define potenVelocidad A5
 
-
-#define btnDerecha 4
-#define btnAdelante 3
-#define btnIzquierda 2
+#define btnModoLinea 4
+#define btnModoAutomatico 3
+bool lineMode = false;
 
 ControlCarrito carrito(
   llantaDerechaAdelante,
@@ -22,20 +21,18 @@ void setup() {
   carrito.init();
   carrito.sensoresInit(A1, A2, A3, A4);
   carrito.setMaxValue(900);
-  pinMode(btnDerecha, INPUT);
-  pinMode(btnAdelante, INPUT);
-  pinMode(btnIzquierda, INPUT);
+  pinMode(btnModoAutomatico, INPUT);
+  pinMode(btnModoAutomatico, INPUT);
 }
 
 void loop() {
+
   /*
   int velocidad = carrito.obtenerVelocidad();
   Serial.println(velocidad);
-
-  int estadoDerecha = !digitalRead(btnDerecha);
-  int estadoAdelante = !digitalRead(btnAdelante);
   int estadoIzquierda = !digitalRead(btnIzquierda);
  
+
 
   if (estadoDerecha) {
     Serial.println("Derecha");
@@ -50,6 +47,26 @@ void loop() {
     carrito.stop();
   }
 */
-  Serial.println(carrito.convertToDigital(analogRead(carrito.D4)));
+  if (isLineMode()) {
+    delay(100);
+    Serial.println("Modo Linea");
+    Serial.println(carrito.convertToDigital(analogRead(carrito.D4)));
+  } else {
+    delay(100);
+    Serial.println("Modo Automatico");
+  }
+
   delay(200);
+}
+
+bool isLineMode() {
+  int estadoModoLinea = !digitalRead(btnModoLinea);
+  int estadoAutomatico = !digitalRead(btnModoAutomatico);
+
+  if (estadoModoLinea) {
+    lineMode = true;
+  } else if (estadoAutomatico) {
+    lineMode = false;
+  }
+  return lineMode;
 }
