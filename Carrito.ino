@@ -22,18 +22,13 @@ void setup() {
   carrito.sensoresInit(A1, A2, A3, A4);
   carrito.setMaxValue(900);
   pinMode(btnModoAutomatico, INPUT);
-  pinMode(btnModoAutomatico, INPUT);
+  pinMode(btnModoAutomatico, INPUT);  
 }
 
 void loop() {
 
   /*
-  int velocidad = carrito.obtenerVelocidad();
-  Serial.println(velocidad);
-  int estadoIzquierda = !digitalRead(btnIzquierda);
- 
-
-
+  
   if (estadoDerecha) {
     Serial.println("Derecha");
     carrito.girarDerecha(velocidad);
@@ -49,8 +44,7 @@ void loop() {
 */
   if (isLineMode()) {
     delay(100);
-    Serial.println("Modo Linea");
-    Serial.println(carrito.convertToDigital(analogRead(carrito.D4)));
+    doLineMode();
   } else {
     delay(100);
     Serial.println("Modo Automatico");
@@ -67,6 +61,22 @@ bool isLineMode() {
     lineMode = true;
   } else if (estadoAutomatico) {
     lineMode = false;
-  }
+  }  
   return lineMode;
+}
+
+void doLineMode(){
+  Serial.println("Modo Linea");
+    Serial.println(carrito.convertToDigital(analogRead(carrito.D4)));
+    int izquierda = carrito.convertToDigital(analogRead(carrito.D4));
+    //Quitara el comentario cuando tenga un potenciometro de nuevo. Perdi el de esli jaja
+    //int velocidad = carrito.obtenerVelocidad();
+    int velocidad = 180;
+    Serial.println(velocidad);
+    if(izquierda){
+      carrito.girarIzquierda(velocidad);
+    }else{
+      //Cambiar despues stop por adelante      
+      carrito.stop();
+    }
 }
