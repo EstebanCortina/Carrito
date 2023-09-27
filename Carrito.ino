@@ -20,12 +20,15 @@ ControlCarrito carrito(
 void setup() {
   Serial.begin(9600);
   carrito.init();
+  carrito.sensoresInit(A1, A2, A3, A4);
+  carrito.setMaxValue(900);
   pinMode(btnDerecha, INPUT);
   pinMode(btnAdelante, INPUT);
   pinMode(btnIzquierda, INPUT);
 }
 
 void loop() {
+  /*
   int velocidad = carrito.obtenerVelocidad();
   Serial.println(velocidad);
 
@@ -46,6 +49,7 @@ void loop() {
   } else {
     carrito.stop();
   }
-
+*/
+  Serial.println(carrito.convertToDigital(analogRead(carrito.D4)));
   delay(200);
 }
