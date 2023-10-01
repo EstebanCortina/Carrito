@@ -42,10 +42,12 @@ void loop() {
   //int velocidad = carrito.obtenerVelocidad();
   int velocidad = 180;  
   if (isLineMode()) {
+    carrito.stop();
     delay(100);
     doLineMode(velocidad);
   } else {
     delay(100);
+    carrito.stop();
     Serial.println("Modo Automatico");
   }
 
@@ -74,21 +76,17 @@ void doLineMode(int velocidad) {
 
   if ((!izquierda || !centroIzquierda) && (!derecha || !centroDerecha)) {
     Serial.println("Stop");
-    carrito.stop();    
-    Serial.println(analogRead(carrito.D4));
+    carrito.stop();        
   } else if(!izquierda || !centroIzquierda) {
     Serial.print("Girando a la derecha: ");
     carrito.girarIzquierda(0);
-    carrito.girarDerecha(velocidad);
-    Serial.println(analogRead(carrito.D1));
+    carrito.girarDerecha(velocidad);    
   }else if(!derecha || !centroDerecha){
     Serial.print("Girando a la izquierda: ");    
     carrito.girarDerecha(0);
-    carrito.girarIzquierda(velocidad);
-    Serial.println(analogRead(carrito.D1));
+    carrito.girarIzquierda(velocidad);    
   }else{
     Serial.println("Adelante");
     carrito.adelante(velocidad);
   }
-
 }
