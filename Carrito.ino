@@ -66,16 +66,29 @@ bool isLineMode() {
 
 void doLineMode(int velocidad) {
   Serial.println("Modo Linea");
-  int izquierda = carrito.convertToDigital(analogRead(carrito.D4));
-  int derecha = carrito.convertToDigital(analogRead(carrito.D1));
-  Serial.println(izquierda);
 
-  if (izquierda) {
+  int izquierda = carrito.convertToDigital(analogRead(carrito.D4));
+  int centroIzquierda = carrito.convertToDigital(analogRead(carrito.D3));
+  int derecha = carrito.convertToDigital(analogRead(carrito.D1));
+  int centroDerecha = carrito.convertToDigital(analogRead(carrito.D2));  
+
+  if ((!izquierda || !centroIzquierda) && (!derecha || !centroDerecha)) {
+    Serial.println("Stop");
+    carrito.stop();    
+    Serial.println(analogRead(carrito.D4));
+  } else if(!izquierda || !centroIzquierda) {
+    Serial.print("Girando a la derecha: ");
+    carrito.girarIzquierda(0);
     carrito.girarDerecha(velocidad);
-  } else if(derecha) {
-    carrito.girarIzquierda(velocidad);    
+    Serial.println(analogRead(carrito.D1));
+  }else if(!derecha || !centroDerecha){
+    Serial.print("Girando a la izquierda: ");    
+    carrito.girarDerecha(0);
+    carrito.girarIzquierda(velocidad);
+    Serial.println(analogRead(carrito.D1));
   }else{
-    //Cambiar despues stop por adelante
-    carrito.stop();
+    Serial.println("Adelante");
+    carrito.adelante(velocidad);
   }
+
 }
