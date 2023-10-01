@@ -1,12 +1,17 @@
 
 class ControlCarrito {
-public:
+private:
   int llantaDerechaAdelante;
   int llantaIzquierdaAdelante;
   int llantaDerechaAtras;
   int llantaIzquierdaAtras;
   int potenVelocidad;
-
+  int maxValue;
+public:
+  int D1;
+  int D2;
+  int D3;
+  int D4;
   ControlCarrito(
     int llantaDerechaAdelante,
     int llantaIzquierdaAdelante,
@@ -27,6 +32,23 @@ public:
     pinMode(this->llantaIzquierdaAtras, OUTPUT);
   }
 
+  /* SEGUIDOR DE LINEA */
+
+  void sensoresInit(int D1, int D2, int D3, int D4) {
+    this->D1 = D1;
+    this->D2 = D2;
+    this->D3 = D3;
+    this->D4 = D4;
+  }
+
+  void setMaxValue(int value) {
+    this->maxValue = value;
+  }
+
+  int convertToDigital(int sensorValue) {
+    return (sensorValue < this->maxValue) ? 1 : 0;
+  }
+  /* CONTROLES DE LOS MOTORES */
 
   int obtenerVelocidad() {
     int velocidad = analogRead(potenVelocidad);
@@ -41,11 +63,11 @@ public:
   }
   void girarDerecha(int velocidad) {
     analogWrite(this->llantaIzquierdaAdelante, velocidad);
-    analogWrite(this->llantaDerechaAtras, velocidad);
+    //analogWrite(this->llantaDerechaAtras, velocidad);
   }
   void girarIzquierda(int velocidad) {
     analogWrite(this->llantaDerechaAdelante, velocidad);
-    analogWrite(this->llantaIzquierdaAtras, velocidad);
+    //analogWrite(this->llantaIzquierdaAtras, velocidad);
   }
   void adelante(int velocidad) {
     analogWrite(this->llantaDerechaAdelante, velocidad);

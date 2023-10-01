@@ -5,10 +5,15 @@
 #define llantaIzquierdAAtras 5
 #define potenVelocidad A5
 
+#define btnModoLinea 4
+#define btnModoAutomatico 3
 
-#define btnDerecha 4
-#define btnAdelante 3
-#define btnIzquierda 2
+#define sensorDerecho A1
+#define sensorCentroDerecha A2
+#define sensorCentroIzquierda A3
+#define sensorIzquierdo A4
+
+bool lineMode = false;
 
 ControlCarrito carrito(
   llantaDerechaAdelante,
@@ -20,32 +25,70 @@ ControlCarrito carrito(
 void setup() {
   Serial.begin(9600);
   carrito.init();
-  pinMode(btnDerecha, INPUT);
-  pinMode(btnAdelante, INPUT);
-  pinMode(btnIzquierda, INPUT);
+  carrito.sensoresInit(
+    sensorDerecho,
+    sensorCentroDerecha,
+    sensorCentroIzquierda,
+    sensorIzquierdo);
+
+  carrito.setMaxValue(900);
+  pinMode(btnModoAutomatico, INPUT);
+  pinMode(btnModoLinea, INPUT);
 }
 
 void loop() {
-  int velocidad = carrito.obtenerVelocidad();
-  Serial.println(velocidad);
-
-  int estadoDerecha = !digitalRead(btnDerecha);
-  int estadoAdelante = !digitalRead(btnAdelante);
-  int estadoIzquierda = !digitalRead(btnIzquierda);
- 
-
-  if (estadoDerecha) {
-    Serial.println("Derecha");
-    carrito.girarDerecha(velocidad);
-  } else if (estadoAdelante) {
-    Serial.println("Adelante");
-    carrito.adelante(velocidad);
-  } else if (estadoIzquierda) {
-    Serial.println("Izquierda");
-    carrito.girarIzquierda(velocidad);
+  //Quitar el comentario cuando tenga un potenciometro de nuevo. Perdi el de esli jaja
+  
+  //int velocidad = carrito.obtenerVelocidad();
+  int velocidad = 180;  
+  if (isLineMode()) {
+    delay(100);
+    doLineMode(velocidad);
   } else {
-    carrito.stop();
+    delay(100);
+    Serial.println("Modo Automatico");
   }
 
   delay(200);
+}
+
+bool isLineMode() {
+  int estadoModoLinea = !digitalRead(btnModoLinea);
+  int estadoAutomatico = !digitalRead(btnModoAutomatico);
+
+  if (estadoModoLinea) {
+    lineMode = true;
+  } else if (estadoAutomatico) {
+    lineMode = false;
+  }
+  return lineMode;
+}
+
+void doLineMode(int velocidad) {
+  Serial.println("Modo Linea");
+
+  int izquierda = carrito.convertToDigital(analogRead(carrito.D4));
+  int centroIzquierda = carrito.convertToDigital(analogRead(carrito.D3));
+  int derecha = carrito.convertToDigital(analogRead(carrito.D1));
+  int centroDerecha = carrito.convertToDigital(analogRead(carrito.D2));  
+
+  if ((!izquierda || !centroIzquierda) && (!derecha || !centroDerecha)) {
+    Serial.println("Stop");
+    carrito.stop();    
+    Serial.println(analogRead(carrito.D4));
+  } else if(!izquierda || !centroIzquierda) {
+    Serial.print("Girando a la derecha: ");
+    carrito.girarIzquierda(0);
+    carrito.girarDerecha(velocidad);
+    Serial.println(analogRead(carrito.D1));
+  }else if(!derecha || !centroDerecha){
+    Serial.print("Girando a la izquierda: ");    
+    carrito.girarDerecha(0);
+    carrito.girarIzquierda(velocidad);
+    Serial.println(analogRead(carrito.D1));
+  }else{
+    Serial.println("Adelante");
+    carrito.adelante(velocidad);
+  }
+
 }
