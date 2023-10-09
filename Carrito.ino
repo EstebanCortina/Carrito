@@ -1,8 +1,8 @@
 #include "ControlCarrito.h"
-#define llantaDerechaAdelante 11
-#define llantaIzquierdaAdelante 6
-#define llantaDerechaAtras 10
-#define llantaIzquierdAAtras 5
+#define llantaDerechaAdelante 10
+#define llantaIzquierdaAdelante 5
+#define llantaDerechaAtras 11
+#define llantaIzquierdAAtras 6
 #define potenVelocidad A5
 
 #define btnModoLinea 4
@@ -13,7 +13,12 @@
 #define sensorCentroIzquierda A3
 #define sensorIzquierdo A4
 
+#define trigPin 2
+#define echoPin 7
+
 bool lineMode = false;
+long duration;
+int distance_cm;
 
 ControlCarrito carrito(
   llantaDerechaAdelante,
@@ -23,7 +28,7 @@ ControlCarrito carrito(
   potenVelocidad);
 
 void setup() {
-  Serial.begin(9600);
+Serial.begin(9600);
   carrito.init();
   carrito.sensoresInit(
     sensorDerecho,
@@ -31,27 +36,28 @@ void setup() {
     sensorCentroIzquierda,
     sensorIzquierdo);
 
-  carrito.setMaxValue(900);
+  carrito.setMaxValue(850);
   pinMode(btnModoAutomatico, INPUT);
   pinMode(btnModoLinea, INPUT);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  
 }
 
 void loop() {
   //Quitar el comentario cuando tenga un potenciometro de nuevo. Perdi el de esli jaja
-  
+
   //int velocidad = carrito.obtenerVelocidad();
-  int velocidad = 180;  
+  int velocidad = 255;
   if (isLineMode()) {
-    carrito.stop();
+    //carrito.stop();
     delay(100);
     doLineMode(velocidad);
   } else {
     delay(100);
-    carrito.stop();
+    doAutomaticMode();
     Serial.println("Modo Automatico");
   }
-
-  delay(200);
 }
 
 bool isLineMode() {
@@ -61,6 +67,7 @@ bool isLineMode() {
   if (estadoModoLinea) {
     lineMode = true;
   } else if (estadoAutomatico) {
+    carrito.stop();
     lineMode = false;
   }
   return lineMode;
@@ -69,24 +76,47 @@ bool isLineMode() {
 void doLineMode(int velocidad) {
   Serial.println("Modo Linea");
 
-  int izquierda = carrito.convertToDigital(analogRead(carrito.D4));
-  int centroIzquierda = carrito.convertToDigital(analogRead(carrito.D3));
-  int derecha = carrito.convertToDigital(analogRead(carrito.D1));
-  int centroDerecha = carrito.convertToDigital(analogRead(carrito.D2));  
-
-  if ((!izquierda || !centroIzquierda) && (!derecha || !centroDerecha)) {
+  int izquierda = carrito.convertToDigital(analogRead(A5));
+  int derecha = carrito.convertToDigital(analogRead(A4));
+  //int centro = carrito.convertToDigital(analogRead(A4));
+  if (!izquierda && !derecha) {
     Serial.println("Stop");
-    carrito.stop();        
-  } else if(!izquierda || !centroIzquierda) {
+    carrito.stop();    
+  } else if (!izquierda) {
     Serial.print("Girando a la derecha: ");
     carrito.girarIzquierda(0);
-    carrito.girarDerecha(velocidad);    
-  }else if(!derecha || !centroDerecha){
-    Serial.print("Girando a la izquierda: ");    
+    carrito.girarDerecha(velocidad);
+  } else if (!derecha) {
+    Serial.print("Girando a la izquierda: ");
     carrito.girarDerecha(0);
-    carrito.girarIzquierda(velocidad);    
+    carrito.girarIzquierda(velocidad);
   }else{
     Serial.println("Adelante");
+    carrito.stop();
     carrito.adelante(velocidad);
   }
+}
+void doAutomaticMode() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+
+  duration = pulseIn(echoPin, HIGH);
+  distance_cm = duration * 0.034 / 2;
+Serial.println(distance_cm);
+  while (distance_cm < 25) {
+    carrito.stop();
+    carrito.girarDerecha(255);
+    
+    digitalWrite(trigPin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigPin, HIGH);
+
+    duration = pulseIn(echoPin, HIGH);
+    distance_cm = duration * 0.034 / 2;
+    
+    Serial.println(distance_cm);
+  }
+  carrito.stop();
+  carrito.adelante(255);
 }

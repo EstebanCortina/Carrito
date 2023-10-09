@@ -63,11 +63,11 @@ public:
   }
   void girarDerecha(int velocidad) {
     analogWrite(this->llantaIzquierdaAdelante, velocidad);
-    //analogWrite(this->llantaDerechaAtras, velocidad);
+    analogWrite(this->llantaDerechaAtras, velocidad);
   }
   void girarIzquierda(int velocidad) {
     analogWrite(this->llantaDerechaAdelante, velocidad);
-    //analogWrite(this->llantaIzquierdaAtras, velocidad);
+    analogWrite(this->llantaIzquierdaAtras, velocidad);
   }
   void adelante(int velocidad) {
     analogWrite(this->llantaDerechaAdelante, velocidad);
