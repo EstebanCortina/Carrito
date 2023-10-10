@@ -46,7 +46,7 @@ public:
   }
 
   int convertToDigital(int sensorValue) {
-    return (sensorValue < this->maxValue) ? 1 : 0;
+    return (sensorValue < this->maxValue) ? 0 : 1;
   }
   /* CONTROLES DE LOS MOTORES */
 
